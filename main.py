@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from enum import Enum
+from pydantic import BaseModel
 
 FAKE_ITEMS_DB = [{"item_name": "Foo"}, {"item_name": "Bar"}, {"item_name": "Baz"}]
 
@@ -8,6 +9,11 @@ class ModelName(Enum):
     resnet = 'resnet'
     lenet = 'lenet'
 
+class Item(BaseModel):
+    name: str
+    description: str | None = None
+    price: float 
+    tax: float | None = None
 
 
 app = FastAPI()
@@ -16,26 +22,47 @@ app = FastAPI()
 async def root():
     return { 'message': 'Hello World!' }
 
+@app.get('/items') # e.g. /items/?skip=1&limit=1
+async def read_items(skip: int = 0, limit: int = 10):
+    return FAKE_ITEMS_DB[skip : skip + limit]
+
+@app.post('/items')
+async def create_item(item: Item):
+    item_dict = item.model_dump()
+    
+    if item.tax is not None:
+        price_with_tax = item.price + item.tax
+        item_dict.update({ 'price_with_tax': price_with_tax })
+
+    return item_dict
+
 @app.get('/items/{item_id}') # /items/123?q=abc&short=1
 async def get_item(item_id: int, q: str | None = None, short: bool = False):
     item = { 'item_id': item_id }
     
     if q:
-        item.update({"q": q})
+        item.update({"q": q })
     
     if not short:
         item.update({ 'description': 'this is long!' })
     
     return item 
 
-@app.get('/items') # e.g. /items/?skip=1&limit=1
-async def read_items(skip: int = 0, limit: int = 10):
-    return FAKE_ITEMS_DB[skip : skip + limit]
+@app.put('/items/{item_id}')
+async def update_item(
+    item_id: int, item: Item, q: str | None = None
+):
+    result = { 'item_id': item_id, **item.model_dump() }
+    
+    if q:
+        result.update({ 'q': q })
+        
+    return result 
 
 
 @app.get('/users/me')
 async def me():
-    return { 'user': 'me'}
+    return { 'user': 'me' }
 
 @app.get('/users/{user_id}') # /users/1234
 async def get_user(user_id: int):
