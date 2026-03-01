@@ -12,7 +12,7 @@ class ModelName(Enum):
 class Item(BaseModel):
     name: str
     description: str | None = None
-    price: float 
+    price: float
     tax: float | None = None
 
 
@@ -29,7 +29,7 @@ async def read_items(skip: int = 0, limit: int = 10):
 @app.post('/items')
 async def create_item(item: Item):
     item_dict = item.model_dump()
-    
+
     if item.tax is not None:
         price_with_tax = item.price + item.tax
         item_dict.update({ 'price_with_tax': price_with_tax })
@@ -39,25 +39,25 @@ async def create_item(item: Item):
 @app.get('/items/{item_id}') # /items/123?q=abc&short=1
 async def get_item(item_id: int, q: str | None = None, short: bool = False):
     item = { 'item_id': item_id }
-    
+
     if q:
         item.update({"q": q })
-    
+
     if not short:
         item.update({ 'description': 'this is long!' })
-    
-    return item 
+
+    return item
 
 @app.put('/items/{item_id}')
 async def update_item(
     item_id: int, item: Item, q: str | None = None
 ):
     result = { 'item_id': item_id, **item.model_dump() }
-    
+
     if q:
         result.update({ 'q': q })
-        
-    return result 
+
+    return result
 
 
 @app.get('/users/me')
@@ -76,18 +76,18 @@ async def get_user_item(
 
     if q:
         item.update({"q": q})
-    
+
     if not short:
         item.update({ 'description': 'this is long!' })
 
-    return item 
+    return item
 
 
 @app.get('/models/{model_name}') # /models/alexnet
-async def get_model(model_name: ModelName):    
+async def get_model(model_name: ModelName):
     if model_name is ModelName.alexnet:
         message = 'Alex'
-    
+
     elif model_name is ModelName.lenet:
         message = 'Lacun'
 
@@ -98,5 +98,5 @@ async def get_model(model_name: ModelName):
 
 
 @app.get('/files/{file_path:path}') # e.g. /files//home/pepo/file.txt
-async def get_file(file_path: str): 
+async def get_file(file_path: str):
     return { 'file_path': file_path }
