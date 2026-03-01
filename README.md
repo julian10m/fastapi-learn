@@ -1,0 +1,1 @@
+Following the examples in the [Tutorial - User Guide](https://fastapi.tiangolo.com/tutorial/) of [FastAPI](https://fastapi.tiangolo.com/)
