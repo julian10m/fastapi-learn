@@ -30,31 +30,31 @@ async def root():
 
 @app.get('/items') # e.g. /items/?skip=1&limit=1&item-query=Loveaaaaaaaa
 async def read_items(
-    skip: int = 0, 
-    limit: int = 10, 
+    skip: int = 0,
+    limit: int = 10,
     q: Annotated[str | None, Query(
-        alias="item-query", 
-        min_length=10, 
-        max_length=50, 
+        alias="item-query",
+        min_length=10,
+        max_length=50,
         pattern="^L",
         deprecated=True,
     )] = None, # optional
     id: Annotated[str | None, AfterValidator(check_valid_id)] = None,
 ):
-    data = { 'items': FAKE_ITEMS_DB[skip : skip + limit] } 
-    
+    data = { 'items': FAKE_ITEMS_DB[skip : skip + limit] }
+
     if q:
         data.update({ 'q': q })
 
     if id:
         data.update({ 'id': id })
-    
-    return data 
+
+    return data
 
 @app.get("/items2/")
 async def read_items2(
     q: Annotated[
-        str | None, 
+        str | None,
         Query(
             title="This was written by Julian",
             # alias='whatever',
