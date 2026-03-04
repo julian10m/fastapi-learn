@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Path
 from typing import Annotated
 from enum import Enum
 from pydantic import BaseModel, AfterValidator
@@ -91,7 +91,11 @@ async def create_item(item: Item):
     return item_dict
 
 @app.get('/items/{item_id}') # /items/123?q=abc&short=1
-async def get_item(item_id: int, q: str | None = None, short: bool = False):
+async def get_item(
+    item_id: Annotated[int, Path(description="The ID of the item to get", ge=1, le=1000)], 
+    q: str | None = None,
+    short: bool = False
+):
     item = { 'item_id': item_id }
 
     if q:
